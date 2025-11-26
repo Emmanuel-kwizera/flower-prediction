@@ -1,4 +1,4 @@
-# 🌸 Flower Prediction System
+# Flower Prediction System
 
 A robust, containerized application for classifying flower species (Daisy, Dandelion, Rose, Sunflower, Tulip). Built with TensorFlow, FastAPI, and a modern HTML/CSS/JS frontend.
 
