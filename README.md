@@ -1,6 +1,6 @@
 # 🌸 Flower Prediction System
 
-A robust, containerized AI application for classifying flower species (Daisy, Dandelion, Rose, Sunflower, Tulip). Built with TensorFlow, FastAPI, and a modern HTML/CSS/JS frontend.
+A robust, containerized application for classifying flower species (Daisy, Dandelion, Rose, Sunflower, Tulip). Built with TensorFlow, FastAPI, and a modern HTML/CSS/JS frontend.
 
 ## Features
 *   **Real-time Prediction:** Drag & drop interface for instant classification.
@@ -11,7 +11,7 @@ A robust, containerized AI application for classifying flower species (Daisy, Da
 
 ## Tech Stack
 *   **Backend:** Python, FastAPI, TensorFlow/Keras (TFLite)
-*   **Frontend:** HTML5, CSS3 (Glassmorphism), Vanilla JavaScript
+*   **Frontend:** HTML5, CSS3 , Vanilla JavaScript
 *   **Deployment:** Docker, Render
 
 ## Setup & Installation
