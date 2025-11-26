@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flower Prediction AI</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌸 Flower Prediction AI</h1>
+            <div id="api-status" class="status-badge offline">Checking API...</div>
+        </header>
+
+        <main>
+            <!-- Prediction Section -->
+            <section class="card prediction-card">
+                <h2>Live Prediction</h2>
+                <div class="upload-area" id="drop-zone">
+                    <p>Drag & Drop or Click to Upload Image</p>
+                    <input type="file" id="file-input" accept="image/*" hidden>
+                    <img id="preview-image" src="" alt="Preview" hidden>
+                </div>
+                <button id="predict-btn" disabled>Analyze Flower</button>
+                <div id="result-area" hidden>
+                    <h3>Prediction: <span id="prediction-class">...</span></h3>
+                    <div class="confidence-bar-bg">
+                        <div id="confidence-bar" class="confidence-bar-fill" style="width: 0%"></div>
+                    </div>
+                    <p class="confidence-text">Confidence: <span id="prediction-confidence">0%</span></p>
+                </div>
+            </section>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Training Controls -->
+                <section class="card control-card">
+                    <h2>Model Management</h2>
+                    <p>Current Model Status: <span id="model-status">Unknown</span></p>
+                    <button id="retrain-btn" class="secondary-btn">Trigger Retraining</button>
+                    <p id="train-msg" class="status-msg"></p>
+                </section>
+
+                <!-- Visualizations -->
+                <section class="card vis-card">
+                    <h2>Training History</h2>
+                    <div class="img-container">
+                        <img src="/visualizations/training_history.png" alt="Training History" onerror="this.src='https://via.placeholder.com/400x300?text=No+History+Found'">
+                    </div>
+                </section>
+
+                <section class="card vis-card">
+                    <h2>Confusion Matrix</h2>
+                    <div class="img-container">
+                        <img src="/visualizations/confusion_matrix.png" alt="Confusion Matrix" onerror="this.src='https://via.placeholder.com/400x300?text=No+Matrix+Found'">
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
