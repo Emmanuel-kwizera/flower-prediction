@@ -1,4 +1,4 @@
-const API_URL = 'https://flower-prediction-app-3c3y.onrender.com';
+const API_URL = '';
 
 // Elements
 const apiStatus = document.getElementById('api-status');
@@ -121,6 +121,22 @@ function showResult(data) {
 }
 
 // 4. Retraining Trigger
+// ... (previous code)
+
+// 5. Visualization Refresh
+function refreshVisualizations() {
+    const images = document.querySelectorAll('.vis-card img');
+    images.forEach(img => {
+        // Append timestamp to bust cache
+        const currentSrc = img.src.split('?')[0];
+        img.src = `${currentSrc}?t=${new Date().getTime()}`;
+    });
+}
+
+// Refresh on load
+refreshVisualizations();
+
+// Update retrain handler to refresh after success
 retrainBtn.addEventListener('click', async () => {
     if (!confirm('Are you sure you want to trigger model retraining? This may take a while.')) return;
 
@@ -137,6 +153,13 @@ retrainBtn.addEventListener('click', async () => {
             const data = await response.json();
             trainMsg.textContent = `Training started! (PID: ${data.pid})`;
             trainMsg.style.color = 'var(--success)';
+
+            // Poll for completion (simple timeout for demo, ideally use WebSocket or polling API)
+            setTimeout(() => {
+                trainMsg.textContent = 'Refreshing visualizations...';
+                refreshVisualizations();
+            }, 10000); // Refresh after 10s (approx training time)
+
         } else {
             throw new Error('Failed to start');
         }
@@ -146,7 +169,6 @@ retrainBtn.addEventListener('click', async () => {
     } finally {
         setTimeout(() => {
             retrainBtn.disabled = false;
-            // trainMsg.textContent = '';
         }, 5000);
     }
 });
