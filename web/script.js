@@ -1,4 +1,4 @@
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = 'https://flower-prediction-app-3c3y.onrender.com';
 
 // Elements
 const apiStatus = document.getElementById('api-status');
@@ -17,7 +17,7 @@ const trainMsg = document.getElementById('train-msg');
 // 1. Check API Status
 async function checkStatus() {
     try {
-        const response = await fetch(`${API_URL}/`);
+        const response = await fetch(`${API_URL}/health`);
         if (response.ok) {
             const data = await response.json();
             apiStatus.textContent = 'API Online';

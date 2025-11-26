@@ -57,8 +57,12 @@ model = None
 # Load model on demand - REMOVED (using subprocess)
 # model = None
 
-@app.get("/")
-async def root():
+from fastapi.responses import RedirectResponse
+
+# ... imports ...
+
+@app.get("/health")
+async def health_check():
     """Health check and model status."""
     # Check if model file exists
     status = "available" if MODEL_PATH.exists() else "missing"
@@ -67,6 +71,11 @@ async def root():
         "model_status": status,
         "model_path": str(MODEL_PATH)
     }
+
+@app.get("/")
+async def root():
+    """Redirect to Web UI."""
+    return RedirectResponse(url="/web/index.html")
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
