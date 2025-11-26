@@ -13,6 +13,10 @@ A robust, containerized application for classifying flower species (Daisy, Dande
 *   **Backend:** Python, FastAPI, TensorFlow/Keras (TFLite)
 *   **Frontend:** HTML5, CSS3 , Vanilla JavaScript
 *   **Deployment:** Docker, Render
+*   
+## Deployment Links
+*   **Frontend:** [https://flower-prediction-app-3c3y.onrender.com](https://flower-prediction-app-3c3y.onrender.com)
+*   **Backend API Docs:** [https://flower-prediction-app-3c3y.onrender.com/docs#/](https://flower-prediction-app-3c3y.onrender.com/docs#/)
 
 ## Setup & Installation
 
@@ -61,9 +65,6 @@ A robust, containerized application for classifying flower species (Daisy, Dande
 *   `POST /predict`: Upload image for classification.
 *   `POST /train`: Trigger model retraining.
 
-## Deployment Links
-*   **Frontend:** [https://flower-prediction-app-3c3y.onrender.com](https://flower-prediction-app-3c3y.onrender.com)
-*   **Backend API Docs:** [https://flower-prediction-app-3c3y.onrender.com/docs#/](https://flower-prediction-app-3c3y.onrender.com/docs#/)
 
 
 ## Project Structure
