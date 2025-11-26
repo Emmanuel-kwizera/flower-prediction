@@ -115,38 +115,60 @@ def train_model():
     train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
     val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
-    # 3. Model Creation
+    # 3. Model Creation / Loading
     num_classes = len(class_names)
 
-    data_augmentation = keras.Sequential(
-      [
-        layers.RandomFlip("horizontal",
-                          input_shape=(IMG_HEIGHT,
-                                      IMG_WIDTH,
-                                      3)),
-        layers.RandomRotation(0.1),
-        layers.RandomZoom(0.1),
-      ]
-    )
+    if os.path.exists(MODEL_PATH):
+        print(f"Found existing model at {MODEL_PATH}. Loading for fine-tuning...")
+        try:
+            # Load the model
+            model = tf.keras.models.load_model(MODEL_PATH)
+            print("Model loaded successfully.")
+            
+            # Optional: Re-compile if you want to change optimizer/learning rate for fine-tuning
+            # model.compile(...) 
+            # For now, we keep the saved state or re-compile with same settings
+            model.compile(optimizer='adam',
+                          loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                          metrics=['accuracy'])
+            
+        except Exception as e:
+            print(f"Failed to load model: {e}. Building new model...")
+            model = None
+    else:
+        model = None
 
-    model = Sequential([
-      data_augmentation,
-      layers.Rescaling(1./255),
-      layers.Conv2D(16, 3, padding='same', activation='relu'),
-      layers.MaxPooling2D(),
-      layers.Conv2D(32, 3, padding='same', activation='relu'),
-      layers.MaxPooling2D(),
-      layers.Conv2D(64, 3, padding='same', activation='relu'),
-      layers.MaxPooling2D(),
-      layers.Dropout(0.2),
-      layers.Flatten(),
-      layers.Dense(128, activation='relu'),
-      layers.Dense(num_classes)
-    ])
+    if model is None:
+        print("Building new model from scratch...")
+        data_augmentation = keras.Sequential(
+          [
+            layers.RandomFlip("horizontal",
+                              input_shape=(IMG_HEIGHT,
+                                          IMG_WIDTH,
+                                          3)),
+            layers.RandomRotation(0.1),
+            layers.RandomZoom(0.1),
+          ]
+        )
 
-    model.compile(optimizer='adam',
-                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                  metrics=['accuracy'])
+        model = Sequential([
+          data_augmentation,
+          layers.Rescaling(1./255),
+          layers.Conv2D(16, 3, padding='same', activation='relu'),
+          layers.MaxPooling2D(),
+          layers.Conv2D(32, 3, padding='same', activation='relu'),
+          layers.MaxPooling2D(),
+          layers.Conv2D(64, 3, padding='same', activation='relu'),
+          layers.MaxPooling2D(),
+          layers.Dropout(0.2),
+          layers.Flatten(),
+          layers.Dense(128, activation='relu'),
+          layers.Dense(num_classes)
+        ])
+
+        model.compile(optimizer='adam',
+                      loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                      metrics=['accuracy'])
     
     model.summary()
 
