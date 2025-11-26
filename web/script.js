@@ -3,18 +3,14 @@ const API_URL = '';
 // Elements
 const apiStatus = document.getElementById('api-status');
 const modelStatus = document.getElementById('model-status');
-const dropZone = document.getElementById('drop-zone');
-const fileInput = document.getElementById('file-input');
-const previewImage = document.getElementById('preview-image');
-const predictBtn = document.getElementById('predict-btn');
-const resultArea = document.getElementById('result-area');
-const predictionClass = document.getElementById('prediction-class');
-const confidenceBar = document.getElementById('confidence-bar');
-const predictionConfidence = document.getElementById('prediction-confidence');
-const retrainBtn = document.getElementById('retrain-btn');
-const trainMsg = document.getElementById('train-msg');
+const metricUptime = document.getElementById('metric-uptime');
+const metricPredictions = document.getElementById('metric-predictions');
+const metricInference = document.getElementById('metric-inference');
+const metricCpu = document.getElementById('metric-cpu');
 
-// 1. Check API Status
+// ... (other elements)
+
+// 1. Check API Status & Metrics
 async function checkStatus() {
     try {
         const response = await fetch(`${API_URL}/health`);
@@ -23,6 +19,12 @@ async function checkStatus() {
             apiStatus.textContent = 'API Online';
             apiStatus.className = 'status-badge online';
             modelStatus.textContent = data.model_status;
+
+            // Update Metrics
+            metricUptime.textContent = formatUptime(data.uptime);
+            metricPredictions.textContent = data.total_predictions;
+            metricInference.textContent = `${data.avg_inference.toFixed(1)}s`;
+            metricCpu.textContent = `${data.cpu_usage}%`;
         } else {
             throw new Error('API Error');
         }
@@ -33,9 +35,16 @@ async function checkStatus() {
     }
 }
 
-// Initial check and poll every 10s
+function formatUptime(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    return `${h}h ${m}m ${s}s`;
+}
+
+// Initial check and poll every 2s for real-time feel
 checkStatus();
-setInterval(checkStatus, 10000);
+setInterval(checkStatus, 2000);
 
 // 2. Image Upload Handling
 dropZone.addEventListener('click', () => fileInput.click());
@@ -123,18 +132,7 @@ function showResult(data) {
 // 4. Retraining Trigger
 // ... (previous code)
 
-// 5. Visualization Refresh
-function refreshVisualizations() {
-    const images = document.querySelectorAll('.vis-card img');
-    images.forEach(img => {
-        // Append timestamp to bust cache
-        const currentSrc = img.src.split('?')[0];
-        img.src = `${currentSrc}?t=${new Date().getTime()}`;
-    });
-}
-
-// Refresh on load
-refreshVisualizations();
+// 5. Visualization Refresh - REMOVED (Replaced by System Monitoring)
 
 // Update retrain handler to refresh after success
 retrainBtn.addEventListener('click', async () => {
@@ -156,8 +154,7 @@ retrainBtn.addEventListener('click', async () => {
 
             // Poll for completion (simple timeout for demo, ideally use WebSocket or polling API)
             setTimeout(() => {
-                trainMsg.textContent = 'Refreshing visualizations...';
-                refreshVisualizations();
+                trainMsg.textContent = 'Training complete!';
             }, 10000); // Refresh after 10s (approx training time)
 
         } else {

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -35,6 +37,29 @@
 
             <!-- Dashboard Grid -->
             <div class="dashboard-grid">
+                <!-- System Monitoring -->
+                <section class="card monitor-card">
+                    <h2>📊 System Monitoring</h2>
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <span class="metric-label">System Uptime</span>
+                            <span class="metric-value" id="metric-uptime">0h 0m 0s</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Total Predictions</span>
+                            <span class="metric-value" id="metric-predictions">0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Avg Inference Time</span>
+                            <span class="metric-value" id="metric-inference">0ms</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">CPU Usage</span>
+                            <span class="metric-value" id="metric-cpu">0%</span>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Training Controls -->
                 <section class="card control-card">
                     <h2>Model Management</h2>
@@ -42,24 +67,10 @@
                     <button id="retrain-btn" class="secondary-btn">Trigger Retraining</button>
                     <p id="train-msg" class="status-msg"></p>
                 </section>
-
-                <!-- Visualizations -->
-                <section class="card vis-card">
-                    <h2>Training History</h2>
-                    <div class="img-container">
-                        <img src="/visualizations/training_history.png" alt="Training History" onerror="this.src='https://via.placeholder.com/400x300?text=No+History+Found'">
-                    </div>
-                </section>
-
-                <section class="card vis-card">
-                    <h2>Confusion Matrix</h2>
-                    <div class="img-container">
-                        <img src="/visualizations/confusion_matrix.png" alt="Confusion Matrix" onerror="this.src='https://via.placeholder.com/400x300?text=No+Matrix+Found'">
-                    </div>
-                </section>
             </div>
         </main>
     </div>
     <script src="script.js"></script>
 </body>
+
 </html>

@@ -14,6 +14,13 @@ import sys
 import uvicorn
 import pathlib
 import json
+import time
+import psutil
+
+# Global Metrics
+START_TIME = time.time()
+TOTAL_PREDICTIONS = 0
+TOTAL_INFERENCE_TIME = 0.0
 
 app = FastAPI(
     title="Flower Prediction API",
@@ -66,10 +73,19 @@ async def health_check():
     """Health check and model status."""
     # Check if model file exists
     status = "available" if MODEL_PATH.exists() else "missing"
+    
+    # Calculate metrics
+    uptime = time.time() - START_TIME
+    avg_inference = (TOTAL_INFERENCE_TIME / TOTAL_PREDICTIONS) if TOTAL_PREDICTIONS > 0 else 0
+    
     return {
         "message": "Flower Prediction API is running",
         "model_status": status,
-        "model_path": str(MODEL_PATH)
+        "model_path": str(MODEL_PATH),
+        "uptime": uptime,
+        "total_predictions": TOTAL_PREDICTIONS,
+        "avg_inference": avg_inference,
+        "cpu_usage": psutil.cpu_percent(interval=None)
     }
 
 @app.get("/")
@@ -98,12 +114,14 @@ async def predict(file: UploadFile = File(...)):
         cmd = [sys.executable, "scripts/predict.py", tmp_path, "--model_path", str(model_path_abs)]
         
         # Run from project root
+        start_time = time.time()
         result = subprocess.run(
             cmd,
             cwd=str(BASE_DIR.parent),
             capture_output=True,
             text=True
         )
+        duration = time.time() - start_time
         
         # Cleanup
         os.unlink(tmp_path)
@@ -123,6 +141,11 @@ async def predict(file: UploadFile = File(...)):
         if "error" in output:
             raise HTTPException(status_code=500, detail=output["error"])
             
+        # Update metrics
+        global TOTAL_PREDICTIONS, TOTAL_INFERENCE_TIME
+        TOTAL_PREDICTIONS += 1
+        TOTAL_INFERENCE_TIME += duration
+        
         return output
         
     except Exception as e:
