@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+tensorflow
+numpy<2.0.0
+pillow
+matplotlib
+scikit-learn
+python-multipart
+requests
