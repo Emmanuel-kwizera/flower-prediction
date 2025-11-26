@@ -16,6 +16,7 @@ import pathlib
 import json
 import time
 import psutil
+import tensorflow as tf
 
 # Global Metrics
 START_TIME = time.time()
@@ -59,10 +60,20 @@ app.mount("/visualizations", StaticFiles(directory=str(VIS_DIR)), name="visualiz
 app.mount("/web", StaticFiles(directory=str(WEB_DIR), html=True), name="web")
 
 # Load model on startup
-model = None
+interpreter = None
+input_details = None
+output_details = None
 
-# Load model on demand - REMOVED (using subprocess)
-# model = None
+try:
+    import tensorflow as tf
+    # Load TFLite model
+    interpreter = tf.lite.Interpreter(model_path=str(MODEL_PATH))
+    interpreter.allocate_tensors()
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+    print(f"Model loaded successfully from {MODEL_PATH}")
+except Exception as e:
+    print(f"Failed to load model: {e}")
 
 from fastapi.responses import RedirectResponse
 
@@ -72,7 +83,7 @@ from fastapi.responses import RedirectResponse
 async def health_check():
     """Health check and model status."""
     # Check if model file exists
-    status = "available" if MODEL_PATH.exists() else "missing"
+    status = "available" if interpreter is not None else "missing"
     
     # Calculate metrics
     uptime = time.time() - START_TIME
@@ -98,57 +109,55 @@ async def predict(file: UploadFile = File(...)):
     """
     Predicts the class of a flower image.
     """
-    # Save uploaded file temporarily
-    import tempfile
-    import shutil
+    global TOTAL_PREDICTIONS, TOTAL_INFERENCE_TIME
     
+    if interpreter is None:
+        raise HTTPException(status_code=503, detail="Model not loaded")
+
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
-            shutil.copyfileobj(file.file, tmp)
-            tmp_path = tmp.name
-            
-        # Run prediction script
-        # Ensure MODEL_PATH is absolute
-        model_path_abs = MODEL_PATH.resolve()
-        
-        cmd = [sys.executable, "scripts/predict.py", tmp_path, "--model_path", str(model_path_abs)]
-        
-        # Run from project root
         start_time = time.time()
-        result = subprocess.run(
-            cmd,
-            cwd=str(BASE_DIR.parent),
-            capture_output=True,
-            text=True
-        )
+        
+        # Read image
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents)).convert('RGB')
+        
+        # Preprocess
+        image = image.resize((IMG_WIDTH, IMG_HEIGHT))
+        input_arr = np.array(image, dtype=np.float32)
+        input_arr = np.expand_dims(input_arr, axis=0) # Add batch dimension
+        
+        # Normalize if model expects it (Rescaling 1./255 is usually in the model layers for Keras models)
+        # However, TFLite models converted from Keras usually include the rescaling layer if it was in the model.
+        # Our model has Rescaling(1./255), so we pass raw [0, 255] float32.
+        
+        # Set input tensor
+        interpreter.set_tensor(input_details[0]['index'], input_arr)
+        
+        # Run inference
+        interpreter.invoke()
+        
+        # Get output tensor
+        output_data = interpreter.get_tensor(output_details[0]['index'])
+        
+        # Post-process
+        score = tf.nn.softmax(output_data[0])
+        class_idx = np.argmax(score)
+        confidence = 100 * np.max(score)
+        predicted_class = CLASS_NAMES[class_idx]
+        
         duration = time.time() - start_time
         
-        # Cleanup
-        os.unlink(tmp_path)
-        
-        if result.returncode != 0:
-            # Print stderr to API logs for debugging
-            print(f"Prediction script failed. Stderr: {result.stderr}")
-            raise Exception(result.stderr)
-            
-        try:
-            output = json.loads(result.stdout)
-        except json.JSONDecodeError:
-            print(f"Failed to parse JSON. Stdout: {result.stdout}")
-            print(f"Stderr: {result.stderr}")
-            raise Exception(f"Invalid JSON output from prediction script: {result.stdout}")
-        
-        if "error" in output:
-            raise HTTPException(status_code=500, detail=output["error"])
-            
         # Update metrics
-        global TOTAL_PREDICTIONS, TOTAL_INFERENCE_TIME
         TOTAL_PREDICTIONS += 1
         TOTAL_INFERENCE_TIME += duration
         
-        return output
+        return {
+            "class": predicted_class,
+            "confidence": f"{confidence:.2f}%"
+        }
         
     except Exception as e:
+        print(f"Prediction error: {e}")
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
 
 @app.post("/train")
