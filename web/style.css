@@ -175,3 +175,68 @@ button:disabled {
     margin-top: 10px;
     min-height: 1.2em;
 }
+
+/* System Monitoring Metrics */
+.metrics-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.metric-item {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s;
+}
+
+.metric-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateX(5px);
+}
+
+.metric-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.metric-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: 'Monaco', 'Consolas', monospace; /* Tech feel */
+}
+
+/* Upload Training Section */
+.upload-training-section {
+    background-color: rgba(139, 92, 246, 0.05);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    border: 1px dashed var(--accent);
+}
+
+.upload-training-section h3 {
+    margin-top: 0;
+    font-size: 1rem;
+    margin-bottom: 8px;
+}
+
+.small-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.divider {
+    border: 0;
+    height: 1px;
+    background: #334155;
+    margin: 20px 0;
+}
