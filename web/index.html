@@ -64,6 +64,18 @@
                 <section class="card control-card">
                     <h2>Model Management</h2>
                     <p>Current Model Status: <span id="model-status">Unknown</span></p>
+                    
+                    <!-- Upload Training Data -->
+                    <div class="upload-training-section">
+                        <h3>Upload Training Data</h3>
+                        <p class="small-text">Upload a .zip file containing new flower images.</p>
+                        <input type="file" id="train-file-input" accept=".zip">
+                        <button id="upload-train-btn" class="secondary-btn">Upload & Add to Dataset</button>
+                        <p id="upload-msg" class="status-msg"></p>
+                    </div>
+
+                    <hr class="divider">
+
                     <button id="retrain-btn" class="secondary-btn">Trigger Retraining</button>
                     <p id="train-msg" class="status-msg"></p>
                 </section>

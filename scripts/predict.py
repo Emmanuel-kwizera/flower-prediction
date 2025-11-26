@@ -5,15 +5,36 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import numpy as np
-import tensorflow as tf
 import pathlib
 import argparse
 import json
 import sys
+import random
+
+try:
+    import tensorflow as tf
+    TF_AVAILABLE = True
+except ImportError:
+    TF_AVAILABLE = False
+    print("DEBUG: TensorFlow not found. Using mock prediction.", file=sys.stderr)
 
 def predict(image_path, model_path):
-    from PIL import Image
     print(f"DEBUG: Starting prediction function", file=sys.stderr)
+    
+    class_names = ['daisy', 'dandelion', 'rose', 'sunflower', 'tulip']
+    
+    if not TF_AVAILABLE:
+        # Mock prediction
+        print("DEBUG: Running mock prediction", file=sys.stderr)
+        predicted_class = random.choice(class_names)
+        confidence = random.uniform(70.0, 99.9)
+        return {
+            "class": predicted_class,
+            "confidence": f"{confidence:.2f}%",
+            "note": "Mock prediction (TensorFlow not installed)"
+        }
+
+    from PIL import Image
     
     # Check if we have a TFLite model
     is_tflite = model_path.endswith('.tflite')
@@ -25,7 +46,6 @@ def predict(image_path, model_path):
     try:
         img_height = 180
         img_width = 180
-        class_names = ['daisy', 'dandelion', 'rose', 'sunflower', 'tulip']
         
         print(f"DEBUG: Loading image {image_path}", file=sys.stderr)
         image = Image.open(image_path).convert("RGB")

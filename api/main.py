@@ -173,5 +173,38 @@ async def train_model(force: bool = False):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to trigger training: {str(e)}")
 
+@app.post("/upload_data")
+async def upload_data(file: UploadFile = File(...)):
+    """
+    Uploads a ZIP file of training data (images) and extracts it to the data directory.
+    """
+    import zipfile
+    import shutil
+    
+    if not file.filename.endswith('.zip'):
+        raise HTTPException(status_code=400, detail="Only ZIP files are allowed.")
+        
+    try:
+        # Save zip temporarily
+        temp_zip = BASE_DIR / "temp_data.zip"
+        with open(temp_zip, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        # Define data directory
+        data_dir = BASE_DIR.parent / "data" / "flowers"
+        data_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Extract
+        with zipfile.ZipFile(temp_zip, 'r') as zip_ref:
+            zip_ref.extractall(data_dir)
+            
+        # Cleanup
+        os.remove(temp_zip)
+        
+        return {"message": f"Data uploaded and extracted to {data_dir}"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

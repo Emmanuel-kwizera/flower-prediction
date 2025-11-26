@@ -150,7 +150,52 @@ function showResult(data) {
 
 // 5. Visualization Refresh - REMOVED (Replaced by System Monitoring)
 
-// Update retrain handler to refresh after success
+// 5. Upload Training Data
+const trainFileInput = document.getElementById('train-file-input');
+const uploadTrainBtn = document.getElementById('upload-train-btn');
+const uploadMsg = document.getElementById('upload-msg');
+
+uploadTrainBtn.addEventListener('click', async () => {
+    const file = trainFileInput.files[0];
+    if (!file) {
+        alert('Please select a .zip file first.');
+        return;
+    }
+
+    uploadTrainBtn.disabled = true;
+    uploadMsg.textContent = 'Uploading and extracting...';
+    uploadMsg.style.color = 'var(--text-secondary)';
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch(`${API_URL}/upload_data`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            uploadMsg.textContent = 'Success! Data added.';
+            uploadMsg.style.color = 'var(--success)';
+            trainFileInput.value = ''; // Clear input
+        } else {
+            const errData = await response.json();
+            throw new Error(errData.detail || 'Upload failed');
+        }
+    } catch (error) {
+        console.error('Upload error:', error);
+        uploadMsg.textContent = `Error: ${error.message}`;
+        uploadMsg.style.color = 'var(--error)';
+    } finally {
+        setTimeout(() => {
+            uploadTrainBtn.disabled = false;
+        }, 2000);
+    }
+});
+
+// 6. Retraining Trigger
 retrainBtn.addEventListener('click', async () => {
     if (!confirm('Are you sure you want to trigger model retraining? This may take a while.')) return;
 
