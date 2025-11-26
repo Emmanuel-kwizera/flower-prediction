@@ -8,6 +8,17 @@ const metricPredictions = document.getElementById('metric-predictions');
 const metricInference = document.getElementById('metric-inference');
 const metricCpu = document.getElementById('metric-cpu');
 
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const previewImage = document.getElementById('preview-image');
+const predictBtn = document.getElementById('predict-btn');
+const resultArea = document.getElementById('result-area');
+const predictionClass = document.getElementById('prediction-class');
+const confidenceBar = document.getElementById('confidence-bar');
+const predictionConfidence = document.getElementById('prediction-confidence');
+const retrainBtn = document.getElementById('retrain-btn');
+const trainMsg = document.getElementById('train-msg');
+
 // ... (other elements)
 
 // 1. Check API Status & Metrics
@@ -47,7 +58,10 @@ checkStatus();
 setInterval(checkStatus, 2000);
 
 // 2. Image Upload Handling
-dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('click', (e) => {
+    console.log('Drop zone clicked');
+    fileInput.click();
+});
 
 dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -60,6 +74,7 @@ dropZone.addEventListener('dragleave', () => {
 
 dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
+    console.log('File dropped');
     dropZone.style.borderColor = '#475569';
     if (e.dataTransfer.files.length) {
         handleFile(e.dataTransfer.files[0]);
@@ -67,6 +82,7 @@ dropZone.addEventListener('drop', (e) => {
 });
 
 fileInput.addEventListener('change', (e) => {
+    console.log('File input changed');
     if (e.target.files.length) {
         handleFile(e.target.files[0]);
     }
