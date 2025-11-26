@@ -166,7 +166,18 @@ def train_model():
     # Using .keras format is recommended over .h5 for newer TF versions, 
     # but sticking to .h5 to match notebook unless requested otherwise.
     model.save(MODEL_PATH)
-    print("Training complete.")
+    print(f"Model saved to {MODEL_PATH}")
+    
+    # Convert to TFLite
+    print("Converting to TFLite...")
+    converter = tf.lite.TFLiteConverter.from_keras_model(model)
+    converter.optimizations = [tf.lite.Optimize.DEFAULT]
+    tflite_model = converter.convert()
+    
+    tflite_path = str(pathlib.Path(MODEL_PATH).with_suffix('.tflite'))
+    with open(tflite_path, 'wb') as f:
+        f.write(tflite_model)
+    print(f"TFLite model saved to {tflite_path}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train Flower Prediction Model")

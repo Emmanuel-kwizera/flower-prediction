@@ -32,7 +32,7 @@ app.add_middleware(
 
 # Configuration
 BASE_DIR = pathlib.Path(__file__).parent.resolve()
-MODEL_PATH = BASE_DIR / '../models/model.h5'
+MODEL_PATH = BASE_DIR / '../models/model.tflite'
 VIS_DIR = BASE_DIR / '../visualizations'
 WEB_DIR = BASE_DIR / '../web'
 

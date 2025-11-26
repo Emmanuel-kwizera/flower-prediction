@@ -4,10 +4,8 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 # Suppress TF logs
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
 import pathlib
 import argparse
 import json
@@ -16,25 +14,15 @@ import sys
 def predict(image_path, model_path):
     from PIL import Image
     print(f"DEBUG: Starting prediction function", file=sys.stderr)
-    print(f"DEBUG: Received model_path: {model_path}", file=sys.stderr)
-    print(f"DEBUG: CWD: {os.getcwd()}", file=sys.stderr)
-    print(f"DEBUG: Exists: {os.path.exists(model_path)}", file=sys.stderr)
+    
+    # Check if we have a TFLite model
+    is_tflite = model_path.endswith('.tflite')
+    print(f"DEBUG: Received model_path: {model_path} (TFLite: {is_tflite})", file=sys.stderr)
     
     if not os.path.exists(model_path):
         return {"error": "Model not found"}
     
     try:
-        # Disable GPU to avoid Metal/threading crashes
-        try:
-            print("DEBUG: Disabling GPU", file=sys.stderr)
-            tf.config.set_visible_devices([], 'GPU')
-        except:
-            pass
-
-        print(f"DEBUG: Loading model from {model_path}", file=sys.stderr)
-        model = tf.keras.models.load_model(model_path)
-        print("DEBUG: Model loaded", file=sys.stderr)
-        
         img_height = 180
         img_width = 180
         class_names = ['daisy', 'dandelion', 'rose', 'sunflower', 'tulip']
@@ -46,7 +34,29 @@ def predict(image_path, model_path):
         img_array = tf.expand_dims(img_array, 0)
 
         print("DEBUG: Running prediction", file=sys.stderr)
-        predictions = model.predict(img_array, verbose=0)
+        
+        if is_tflite:
+            # TFLite Inference
+            interpreter = tf.lite.Interpreter(model_path=model_path)
+            interpreter.allocate_tensors()
+            
+            input_details = interpreter.get_input_details()
+            output_details = interpreter.get_output_details()
+            
+            interpreter.set_tensor(input_details[0]['index'], img_array)
+            interpreter.invoke()
+            
+            predictions = interpreter.get_tensor(output_details[0]['index'])
+        else:
+            # Fallback to Keras (legacy)
+            # Disable GPU to avoid Metal/threading crashes
+            try:
+                tf.config.set_visible_devices([], 'GPU')
+            except:
+                pass
+            model = tf.keras.models.load_model(model_path)
+            predictions = model.predict(img_array, verbose=0)
+            
         print("DEBUG: Prediction complete", file=sys.stderr)
         score = tf.nn.softmax(predictions[0])
         
