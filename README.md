@@ -14,6 +14,9 @@ A robust, containerized application for classifying flower species (Daisy, Dande
 *   **Frontend:** HTML5, CSS3 , Vanilla JavaScript
 *   **Deployment:** Docker, Render
 
+## Dataset Links
+*  **Data on Kaggle:** [https://www.kaggle.com/datasets/alxmamaev/flowers-recognition](https://www.kaggle.com/datasets/alxmamaev/flowers-recognition)
+
 ## Video Demo
 * **Youtube Link:** [https://youtu.be/9lSRQfwRDlw](https://youtu.be/9lSRQfwRDlw)
 
